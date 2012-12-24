@@ -1,0 +1,15 @@
+http://f.10086.cn/im5/js/loader.js
+http://f.10086.cn/im5/js/html5/common.js
+http://f.10086.cn/im5/js/html5/group.js
+http://f.10086.cn/im5/js/html5/ws.js
+http://f.10086.cn/im5/js/html5/app.js
+http://f.10086.cn/im5/js/html5/login.js
+http://f.10086.cn/im5/js/html5/common.js
+http://f.10086.cn/im5/js/html5/index.js
+http://f.10086.cn/im5/js/html5/face.js
+http://f.10086.cn/im5/js/html5/main.js
+http://f.10086.cn/im5/js/libs/iscroll.js
+http://f.10086.cn/im5/js/html5/chat.js
+http://f.10086.cn/im5/js/html5/user.js
+http://f.10086.cn/im5/js/libs/setCookie.js
+http://f.10086.cn/im5/js/html5/noimage.h5.js
