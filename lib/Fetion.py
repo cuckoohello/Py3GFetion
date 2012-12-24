@@ -54,6 +54,28 @@ class Fetion(object):
             return eval(self.open(url,{'number':mobile,'type':result['type']}))
         return result
 
+    def deleteFriend(self, mobile):
+        uid = self.getUid(mobile)
+        return self.deleteFriendByUID(uid)
+
+    def deleteFriendByUID(self,userid):
+        url = '/im5/user/deletefriend.action?t=%d'%(int(time()*1000))
+        return self.open(url,{'touserid':userid})
+
+    def addBlackList(self,mobile):
+        return self.addBlackListByUID(self.getUid(mobile))
+
+    def addBlackListByUID(self,userid):
+        url = '/im5/user/Addblacklist.action'
+        return self.open(url,{'touserid':userid})
+
+    def removeBlackList(self, mobile):
+        return self.removeBlackListByUID(self.getUid(mobile))
+
+    def removeBlackListByUID(self,userid):
+        url = '/im5/user/Removeblacklist.action'
+        return self.open(url,{'touserid':userid})
+
     def alive(self):
         htm = self.open('/im5/box/alllist.action?t=%d'%(int(time()*1000)))
         if htm == '':
@@ -71,7 +93,7 @@ class Fetion(object):
             self.thread.stop()
             self.thread.join()
             
-        return self.open('/im5/index/logoutsubmit.action')
+        return "退出成功" in self.open('/im5/index/logoutsubmit.action')
 
     def login(self, mobile, password):
         self.mobile, self.password = mobile, password
@@ -95,7 +117,7 @@ class Fetion(object):
         {"msg":"success"}
         '''
         url = '/im5/index/setLoginStatus.action?loginstatus=%d'%(lgstatus)
-        return self.open(url)
+        return "success" in self.open(url)
 
     def sendByMobile(self, mobile, message, sms=False):
         return self.sendByUid(self.getUid(mobile),message,sms)
