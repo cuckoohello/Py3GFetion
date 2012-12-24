@@ -8,6 +8,8 @@ from threading import Thread
 
 __all__ = ['Fetion']
 
+false = False
+
 class AliveKeeper(Thread):
     def __init__(self, fetion, sleeptime=5, Daemon=True):
         self.fetion = fetion
@@ -80,6 +82,17 @@ class Fetion(object):
         result = eval(self.open('/im5/login/loginHtml5.action?t=%d'%(int(time()*1000)),data))
         #{"headurl":"","nickname":"","loginstatus":"400","loginstate":"200","tip":"密码错误,请重新尝试","idUser":"","sessionId":"","checkCodeKey":"false"}
         return result
+
+    def setLoginStatus(self,lgstatus):
+        '''
+        600 busy
+        100 leave
+        0 hide
+        400 online
+        {"msg":"success"}
+        '''
+        url = '/im5/index/setLoginStatus.action?loginstatus=%d'%(lgstatus)
+        return self.open(url)
 
     def sendByMobile(self, mobile, message, sms=False):
         return self.sendByUid(self.getUid(mobile),message,sms)
