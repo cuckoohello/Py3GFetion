@@ -35,6 +35,7 @@ class Fetion(object):
         self.opener = build_opener(cookie_processor,
             HTTPHandler)
         self.messRecvCb = None
+        self.stoppedCb = None
         self.thread = AliveKeeper(self)
 
     def keepAlive(self):
@@ -66,9 +67,11 @@ class Fetion(object):
         '''
         {"tip":"退出成功"}
         '''
+        if self.thread.isAlive():
+            self.thread.stop()
+            self.thread.join()
+            
         return self.open('/im5/index/logoutsubmit.action')
-
-    __exit__ = __del__ = logout
 
     def login(self, mobile, password):
         self.mobile, self.password = mobile, password
@@ -134,17 +137,20 @@ class Fetion(object):
         else:
             return None
 
-    def setMessageCallback(self,messCb):
+    def setCallback(self, messCb, stoppedCb):
         '''
         {"idMessage":,"toIdUser":,"fromIdUser":,"fromNickname":,"messageType":,"sendTime":,"message":,"isnowday":0,"flag":1,"fromUserImg":}
         '''
         self.messRecvCb = messCb
+        self.stoppedCb = stoppedCb
 
     def doKeepAlive(self):
         htm = self.open('/im5/box/alllist.action?t=%d'%(int(time()*1000)))
         if htm == '':
             return True
         elif '<!DOCTYPE html>' in htm:
+            if self.stoppedCb:
+                self.stoppedCb()
             print 'Error! the account has logout'
             return False
         messages = eval(htm)
