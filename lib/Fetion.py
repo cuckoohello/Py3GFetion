@@ -2,16 +2,41 @@
 # -*- coding: utf-8 -*- 
 from urllib2 import Request, build_opener, HTTPHandler, HTTPCookieProcessor
 from urllib import urlencode
-from time import time
+from time import time, sleep
 import base64
+from threading import Thread
 
 __all__ = ['Fetion']
+
+class AliveKeeper(Thread):
+    def __init__(self, fetion, sleeptime=5, Daemon=True):
+        self.fetion = fetion
+        Thread.__init__(self)
+        self.sleeptime = sleeptime
+        self.stop = True
+        self.setDaemon(Daemon)
+
+    def run(self):
+        if  self.stop == False:
+            return
+        self.stop = True
+        while self.stop and self.fetion.doKeepAlive():
+            sleep(self.sleeptime)
+        self.stop = True
+
+    def stop(self):
+        self.stop = True
 
 class Fetion(object):
     def __init__(self):
         cookie_processor = HTTPCookieProcessor()
         self.opener = build_opener(cookie_processor,
             HTTPHandler)
+        self.messRecvCb = None
+        self.thread = AliveKeeper(self)
+
+    def keepAlive(self):
+        self.thread.start()
 
     def addFriend(self, mobile):
         '''
@@ -96,6 +121,29 @@ class Fetion(object):
         else:
             return None
 
+    def setMessageCallback(self,messCb):
+        '''
+        {"idMessage":,"toIdUser":,"fromIdUser":,"fromNickname":,"messageType":,"sendTime":,"message":,"isnowday":0,"flag":1,"fromUserImg":}
+        '''
+        self.messRecvCb = messCb
+
+    def doKeepAlive(self):
+        htm = self.open('/im5/box/alllist.action?t=%d'%(int(time()*1000)))
+        if htm == '':
+            return True
+        elif '<!DOCTYPE html>' in htm:
+            print 'Error! the account has logout'
+            return False
+        messages = eval(htm)
+        if messages.has_key('chat_messages'):
+            for message  in messages['chat_messages']:
+                if self.messRecvCb:
+                    self.messRecvCb(message)
+                else:
+                    print message
+                url = '/im5/chat/queryNewMsg.action?t=%d'%(int(time()*1000))
+                self.open(url,{'idMsgs':message['idMessage'],'t':int(time()*1000)})
+        return True
 
     def open(self, url, data=''):
         request = Request('http://f.10086.cn/%s' % url, data=urlencode(data))
